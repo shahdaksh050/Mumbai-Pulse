@@ -1443,6 +1443,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$YAxis$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/recharts/es6/cartesian/YAxis.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$CartesianGrid$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/recharts/es6/cartesian/CartesianGrid.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$ReferenceArea$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/recharts/es6/cartesian/ReferenceArea.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Area$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/recharts/es6/cartesian/Area.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$api$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/api.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$useDashboardContext$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/hooks/useDashboardContext.js [app-ssr] (ecmascript)");
 "use client";
@@ -1469,6 +1470,7 @@ function ForecastingChart({ context, data }) {
     const [loading, setLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const [error, setError] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("");
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
+        if (Array.isArray(data) && data.length) return; // external data mode: skip fetch
         let mounted = true;
         (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$api$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["fetchSegments"])().then((data)=>{
             if (!mounted) return;
@@ -1481,7 +1483,8 @@ function ForecastingChart({ context, data }) {
             mounted = false;
         };
     }, [
-        roadId
+        roadId,
+        data
     ]);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
         if (!roadId || !timestamp) return;
@@ -1499,60 +1502,65 @@ function ForecastingChart({ context, data }) {
         };
     }, [
         roadId,
-        timestamp
+        timestamp,
+        data
     ]);
     const chartData = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useMemo"])(()=>{
-        if (Array.isArray(data) && data.length) return data;
-        if (!forecast) return [];
-        const base = new Date(forecast.timestamp || timestamp);
-        const entries = [
+        const anchorData = Array.isArray(data) && data.length ? data : null;
+        const baseForecast = forecast && !anchorData;
+        if (!anchorData && !baseForecast) return [];
+        const baseTime = baseForecast ? new Date(forecast.timestamp || timestamp) : new Date();
+        const anchors = anchorData || [
             {
+                hour: 1,
                 key: "pred_congestion_plus_1h",
-                hours: 1,
                 band: forecast.pred_congestion_band_plus_1h
             },
             {
+                hour: 2,
                 key: "pred_congestion_plus_2h",
-                hours: 2,
                 band: forecast.pred_congestion_band_plus_2h
             },
             {
+                hour: 6,
                 key: "pred_congestion_plus_6h",
-                hours: 6,
                 band: forecast.pred_congestion_band_plus_6h
             },
             {
+                hour: 24,
                 key: "pred_congestion_plus_24h",
-                hours: 24,
                 band: forecast.pred_congestion_band_plus_24h
             }
-        ];
-        return entries.map(({ key, hours, band })=>{
-            const t = new Date(base.getTime() + hours * 60 * 60 * 1000);
-            const value = forecast[key] != null ? forecast[key] * 100 : null;
+        ].map((entry)=>{
+            const value = forecast?.[entry.key] != null ? forecast[entry.key] * 100 : null;
+            if (value == null) return null;
+            const t = new Date(baseTime.getTime() + entry.hour * 3600 * 1000);
             return {
-                hour: hours,
-                label: `+${hours}h`,
+                hour: entry.hour,
+                value,
+                band: entry.band,
                 time: t.toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit"
-                }),
-                value,
-                band
+                })
             };
-        }).filter((d)=>d.value !== null);
+        }).filter(Boolean);
+        // Deduplicate by hour
+        const seen = new Set();
+        const deduped = [];
+        for (const pt of anchors.sort((a, b)=>a.hour - b.hour)){
+            if (seen.has(pt.hour)) continue;
+            seen.add(pt.hour);
+            deduped.push(pt);
+        }
+        return deduped;
     }, [
         data,
         forecast,
         timestamp
     ]);
-    const hotData = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useMemo"])(()=>chartData.map((d)=>({
-                ...d,
-                hot: d.value >= 90 ? d.value : null
-            })), [
-        chartData
-    ]);
-    const showControls = !(Array.isArray(data) && data.length);
+    const externalData = Array.isArray(data) && data.length;
+    const showControls = !externalData;
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "w-full min-h-[320px] flex flex-col p-4 bg-card/40 backdrop-blur-sm border border-border/50 rounded-xl min-w-0",
         children: [
@@ -1566,7 +1574,7 @@ function ForecastingChart({ context, data }) {
                                 children: "Traffic Forecast (Datathon model)"
                             }, void 0, false, {
                                 fileName: "[project]/src/components/dashboard/ForecastingChart.jsx",
-                                lineNumber: 93,
+                                lineNumber: 104,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1574,13 +1582,13 @@ function ForecastingChart({ context, data }) {
                                 children: "Live predictions from backend (+1h, +2h, +6h, +24h)"
                             }, void 0, false, {
                                 fileName: "[project]/src/components/dashboard/ForecastingChart.jsx",
-                                lineNumber: 94,
+                                lineNumber: 105,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/dashboard/ForecastingChart.jsx",
-                        lineNumber: 92,
+                        lineNumber: 103,
                         columnNumber: 17
                     }, this),
                     showControls && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1596,7 +1604,7 @@ function ForecastingChart({ context, data }) {
                                         children: "Loading roads..."
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/dashboard/ForecastingChart.jsx",
-                                        lineNumber: 104,
+                                        lineNumber: 115,
                                         columnNumber: 50
                                     }, this),
                                     segments.map((seg)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -1609,13 +1617,13 @@ function ForecastingChart({ context, data }) {
                                             ]
                                         }, seg.road_id, true, {
                                             fileName: "[project]/src/components/dashboard/ForecastingChart.jsx",
-                                            lineNumber: 106,
+                                            lineNumber: 117,
                                             columnNumber: 33
                                         }, this))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/dashboard/ForecastingChart.jsx",
-                                lineNumber: 98,
+                                lineNumber: 109,
                                 columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1632,36 +1640,36 @@ function ForecastingChart({ context, data }) {
                                 }
                             }, void 0, false, {
                                 fileName: "[project]/src/components/dashboard/ForecastingChart.jsx",
-                                lineNumber: 111,
+                                lineNumber: 122,
                                 columnNumber: 25
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/dashboard/ForecastingChart.jsx",
-                        lineNumber: 97,
+                        lineNumber: 108,
                         columnNumber: 21
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/components/dashboard/ForecastingChart.jsx",
-                lineNumber: 91,
+                lineNumber: 102,
                 columnNumber: 13
             }, this),
-            error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            !externalData && error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                 className: "text-sm text-red-500 mb-2",
                 children: error
             }, void 0, false, {
                 fileName: "[project]/src/components/dashboard/ForecastingChart.jsx",
-                lineNumber: 128,
-                columnNumber: 23
+                lineNumber: 139,
+                columnNumber: 40
             }, this),
-            loading && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+            !externalData && loading && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                 className: "text-sm text-muted-foreground mb-2",
                 children: "Fetching forecast…"
             }, void 0, false, {
                 fileName: "[project]/src/components/dashboard/ForecastingChart.jsx",
-                lineNumber: 129,
-                columnNumber: 25
+                lineNumber: 140,
+                columnNumber: 42
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "w-full min-h-[260px] min-w-0",
@@ -1670,11 +1678,11 @@ function ForecastingChart({ context, data }) {
                     height: 320,
                     minWidth: 0,
                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$chart$2f$LineChart$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["LineChart"], {
-                        data: hotData,
+                        data: chartData,
                         margin: {
                             top: 12,
                             right: 16,
-                            bottom: 8,
+                            bottom: 12,
                             left: 0
                         },
                         children: [
@@ -1689,30 +1697,30 @@ function ForecastingChart({ context, data }) {
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("stop", {
                                             offset: "0%",
                                             stopColor: "var(--primary)",
-                                            stopOpacity: 1
+                                            stopOpacity: 0.18
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/dashboard/ForecastingChart.jsx",
-                                            lineNumber: 136,
+                                            lineNumber: 147,
                                             columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("stop", {
                                             offset: "100%",
                                             stopColor: "var(--primary)",
-                                            stopOpacity: 0.85
+                                            stopOpacity: 0
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/dashboard/ForecastingChart.jsx",
-                                            lineNumber: 137,
+                                            lineNumber: 148,
                                             columnNumber: 33
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/components/dashboard/ForecastingChart.jsx",
-                                    lineNumber: 135,
+                                    lineNumber: 146,
                                     columnNumber: 29
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/src/components/dashboard/ForecastingChart.jsx",
-                                lineNumber: 134,
+                                lineNumber: 145,
                                 columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$CartesianGrid$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CartesianGrid"], {
@@ -1722,25 +1730,34 @@ function ForecastingChart({ context, data }) {
                                 vertical: false
                             }, void 0, false, {
                                 fileName: "[project]/src/components/dashboard/ForecastingChart.jsx",
-                                lineNumber: 141,
+                                lineNumber: 152,
                                 columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$XAxis$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["XAxis"], {
+                                type: "number",
                                 dataKey: "hour",
+                                domain: [
+                                    0,
+                                    24
+                                ],
+                                ticks: [
+                                    0,
+                                    4,
+                                    8,
+                                    12,
+                                    16,
+                                    20,
+                                    24
+                                ],
                                 stroke: "var(--muted-foreground)",
                                 fontSize: 10,
                                 tickLine: false,
                                 axisLine: false,
                                 dy: 10,
-                                tickFormatter: (v)=>`+${v}h`,
-                                domain: [
-                                    0,
-                                    24
-                                ],
-                                type: "number"
+                                tickFormatter: (v)=>`+${v}h`
                             }, void 0, false, {
                                 fileName: "[project]/src/components/dashboard/ForecastingChart.jsx",
-                                lineNumber: 142,
+                                lineNumber: 153,
                                 columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$YAxis$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["YAxis"], {
@@ -1756,7 +1773,7 @@ function ForecastingChart({ context, data }) {
                                 ]
                             }, void 0, false, {
                                 fileName: "[project]/src/components/dashboard/ForecastingChart.jsx",
-                                lineNumber: 153,
+                                lineNumber: 165,
                                 columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Tooltip"], {
@@ -1775,10 +1792,11 @@ function ForecastingChart({ context, data }) {
                                         `${value?.toFixed?.(2)}%${band ? ` (${band})` : ""}`,
                                         "Congestion"
                                     ];
-                                }
+                                },
+                                labelFormatter: (hour)=>`+${hour}h`
                             }, void 0, false, {
                                 fileName: "[project]/src/components/dashboard/ForecastingChart.jsx",
-                                lineNumber: 162,
+                                lineNumber: 174,
                                 columnNumber: 25
                             }, this),
                             rainWindow && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$ReferenceArea$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ReferenceArea"], {
@@ -1791,7 +1809,7 @@ function ForecastingChart({ context, data }) {
                                 stroke: "none"
                             }, void 0, false, {
                                 fileName: "[project]/src/components/dashboard/ForecastingChart.jsx",
-                                lineNumber: 177,
+                                lineNumber: 190,
                                 columnNumber: 29
                             }, this),
                             events?.map((event, idx)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$ReferenceArea$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ReferenceArea"], {
@@ -1804,18 +1822,30 @@ function ForecastingChart({ context, data }) {
                                     stroke: "none"
                                 }, `${event.name}-${idx}`, false, {
                                     fileName: "[project]/src/components/dashboard/ForecastingChart.jsx",
-                                    lineNumber: 189,
+                                    lineNumber: 202,
                                     columnNumber: 29
                                 }, this)),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Area$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Area"], {
+                                type: "monotone",
+                                dataKey: "value",
+                                stroke: "none",
+                                fill: "url(#congestion-gradient)",
+                                isAnimationActive: false
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/dashboard/ForecastingChart.jsx",
+                                lineNumber: 214,
+                                columnNumber: 25
+                            }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Line$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Line"], {
                                 type: "monotone",
                                 dataKey: "value",
-                                stroke: "url(#congestion-gradient)",
-                                strokeWidth: 2.5,
+                                stroke: "var(--primary)",
+                                strokeWidth: 3,
                                 dot: {
-                                    r: 4,
+                                    r: 5,
                                     fill: "var(--primary)",
-                                    strokeWidth: 0
+                                    stroke: "#0b1220",
+                                    strokeWidth: 2
                                 },
                                 activeDot: {
                                     r: 6,
@@ -1825,42 +1855,29 @@ function ForecastingChart({ context, data }) {
                                 isAnimationActive: false
                             }, void 0, false, {
                                 fileName: "[project]/src/components/dashboard/ForecastingChart.jsx",
-                                lineNumber: 201,
-                                columnNumber: 25
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Line$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Line"], {
-                                type: "monotone",
-                                dataKey: "hot",
-                                stroke: "red",
-                                strokeWidth: 3,
-                                dot: false,
-                                connectNulls: true,
-                                isAnimationActive: false
-                            }, void 0, false, {
-                                fileName: "[project]/src/components/dashboard/ForecastingChart.jsx",
-                                lineNumber: 211,
+                                lineNumber: 222,
                                 columnNumber: 25
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/dashboard/ForecastingChart.jsx",
-                        lineNumber: 133,
+                        lineNumber: 144,
                         columnNumber: 21
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/components/dashboard/ForecastingChart.jsx",
-                    lineNumber: 132,
+                    lineNumber: 143,
                     columnNumber: 17
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/components/dashboard/ForecastingChart.jsx",
-                lineNumber: 131,
+                lineNumber: 142,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/components/dashboard/ForecastingChart.jsx",
-        lineNumber: 90,
+        lineNumber: 101,
         columnNumber: 9
     }, this);
 }
@@ -1892,20 +1909,12 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$dashboa
 ;
 ;
 ;
-;
-const horizonOptions = [
-    60,
-    120,
-    360,
-    1440
-]; // minutes => 1h, 2h, 6h, 24h
 function AnalyticsPage() {
     const [liveReadings, setLiveReadings] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]);
     const [selectedSegment, setSelectedSegment] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
     const [forecast, setForecast] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
     const [loadingForecast, setLoadingForecast] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const [error, setError] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("");
-    const [horizonMinutes, setHorizonMinutes] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(360);
     const context = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$useDashboardContext$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useDashboardContext"])();
     // Fetch metadata + live congestion snapshots (synthetic when backend lacks live stream)
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
@@ -1978,8 +1987,7 @@ function AnalyticsPage() {
                 hours: 24
             }
         ];
-        const maxHours = horizonMinutes / 60;
-        const future = entries.filter((e)=>e.hours <= maxHours).map((e)=>({
+        const future = entries.map((e)=>({
                 hour: e.hours,
                 label: `+${e.hours}h`,
                 time: new Date(now.getTime() + e.hours * 3600 * 1000).toLocaleTimeString([], {
@@ -1994,7 +2002,6 @@ function AnalyticsPage() {
         ];
     }, [
         forecast,
-        horizonMinutes,
         selectedSegment
     ]);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -2002,7 +2009,7 @@ function AnalyticsPage() {
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$Navbar$2e$jsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Navbar"], {}, void 0, false, {
                 fileName: "[project]/src/app/analytics/page.js",
-                lineNumber: 101,
+                lineNumber: 94,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2018,14 +2025,14 @@ function AnalyticsPage() {
                                         className: "h-px w-8 bg-cyan-500"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/analytics/page.js",
-                                        lineNumber: 105,
+                                        lineNumber: 98,
                                         columnNumber: 25
                                     }, this),
                                     "Live Predictive Ops"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/analytics/page.js",
-                                lineNumber: 104,
+                                lineNumber: 97,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2038,7 +2045,7 @@ function AnalyticsPage() {
                                                 children: "Analytics Dashboard"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/analytics/page.js",
-                                                lineNumber: 110,
+                                                lineNumber: 103,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2046,13 +2053,13 @@ function AnalyticsPage() {
                                                 children: "Linked hotspots → forecast → travel estimator."
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/analytics/page.js",
-                                                lineNumber: 111,
+                                                lineNumber: 104,
                                                 columnNumber: 29
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/analytics/page.js",
-                                        lineNumber: 109,
+                                        lineNumber: 102,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2062,7 +2069,7 @@ function AnalyticsPage() {
                                                 className: "h-4 w-4 text-cyan-400"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/analytics/page.js",
-                                                lineNumber: 114,
+                                                lineNumber: 107,
                                                 columnNumber: 29
                                             }, this),
                                             " ",
@@ -2070,19 +2077,19 @@ function AnalyticsPage() {
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/analytics/page.js",
-                                        lineNumber: 113,
+                                        lineNumber: 106,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/analytics/page.js",
-                                lineNumber: 108,
+                                lineNumber: 101,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/analytics/page.js",
-                        lineNumber: 103,
+                        lineNumber: 96,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2093,71 +2100,42 @@ function AnalyticsPage() {
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "flex items-center justify-between gap-3",
-                                        children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                children: [
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                                                        className: "text-lg font-semibold text-white flex items-center gap-2",
-                                                        children: [
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trending$2d$up$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__TrendingUp$3e$__["TrendingUp"], {
-                                                                className: "h-5 w-5 text-cyan-400"
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/src/app/analytics/page.js",
-                                                                lineNumber: 124,
-                                                                columnNumber: 37
-                                                            }, this),
-                                                            " Forecast"
-                                                        ]
-                                                    }, void 0, true, {
-                                                        fileName: "[project]/src/app/analytics/page.js",
-                                                        lineNumber: 123,
-                                                        columnNumber: 33
-                                                    }, this),
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                        className: "text-xs text-slate-400",
-                                                        children: "Datathon multi-horizon model, segment-linked."
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/src/app/analytics/page.js",
-                                                        lineNumber: 126,
-                                                        columnNumber: 33
-                                                    }, this)
-                                                ]
-                                            }, void 0, true, {
-                                                fileName: "[project]/src/app/analytics/page.js",
-                                                lineNumber: 122,
-                                                columnNumber: 29
-                                            }, this),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "flex items-center gap-2 text-xs text-slate-300",
-                                                children: [
-                                                    "Horizon",
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
-                                                        value: horizonMinutes,
-                                                        onChange: (e)=>setHorizonMinutes(Number(e.target.value)),
-                                                        className: "bg-slate-900 border border-cyan-500/30 text-cyan-100 text-xs rounded-md px-2 py-1",
-                                                        children: horizonOptions.map((m)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                                                value: m,
-                                                                children: m >= 1440 ? "24h" : `${m / 60}h`
-                                                            }, m, false, {
-                                                                fileName: "[project]/src/app/analytics/page.js",
-                                                                lineNumber: 136,
-                                                                columnNumber: 41
-                                                            }, this))
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/src/app/analytics/page.js",
-                                                        lineNumber: 130,
-                                                        columnNumber: 33
-                                                    }, this)
-                                                ]
-                                            }, void 0, true, {
-                                                fileName: "[project]/src/app/analytics/page.js",
-                                                lineNumber: 128,
-                                                columnNumber: 29
-                                            }, this)
-                                        ]
-                                    }, void 0, true, {
+                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                                                    className: "text-lg font-semibold text-white flex items-center gap-2",
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trending$2d$up$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__TrendingUp$3e$__["TrendingUp"], {
+                                                            className: "h-5 w-5 text-cyan-400"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/app/analytics/page.js",
+                                                            lineNumber: 117,
+                                                            columnNumber: 37
+                                                        }, this),
+                                                        " Forecast"
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/src/app/analytics/page.js",
+                                                    lineNumber: 116,
+                                                    columnNumber: 33
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                    className: "text-xs text-slate-400",
+                                                    children: "Datathon multi-horizon model, segment-linked."
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/app/analytics/page.js",
+                                                    lineNumber: 119,
+                                                    columnNumber: 33
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/app/analytics/page.js",
+                                            lineNumber: 115,
+                                            columnNumber: 29
+                                        }, this)
+                                    }, void 0, false, {
                                         fileName: "[project]/src/app/analytics/page.js",
-                                        lineNumber: 121,
+                                        lineNumber: 114,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2168,7 +2146,7 @@ function AnalyticsPage() {
                                                 children: error
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/analytics/page.js",
-                                                lineNumber: 143,
+                                                lineNumber: 124,
                                                 columnNumber: 39
                                             }, this),
                                             loadingForecast && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2176,7 +2154,7 @@ function AnalyticsPage() {
                                                 children: "Fetching forecast…"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/analytics/page.js",
-                                                lineNumber: 144,
+                                                lineNumber: 125,
                                                 columnNumber: 49
                                             }, this),
                                             !loadingForecast && chartData.length === 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2184,7 +2162,7 @@ function AnalyticsPage() {
                                                 children: "Select a hotspot to load predictions."
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/analytics/page.js",
-                                                lineNumber: 146,
+                                                lineNumber: 127,
                                                 columnNumber: 33
                                             }, this),
                                             chartData.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$dashboard$2f$ForecastingChart$2e$jsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ForecastingChart"], {
@@ -2192,14 +2170,119 @@ function AnalyticsPage() {
                                                 data: chartData
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/analytics/page.js",
-                                                lineNumber: 149,
+                                                lineNumber: 130,
                                                 columnNumber: 33
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/analytics/page.js",
-                                        lineNumber: 142,
+                                        lineNumber: 123,
                                         columnNumber: 25
+                                    }, this),
+                                    forecast && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "text-xs text-slate-400 grid grid-cols-2 gap-2",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "flex items-center justify-between rounded-lg border border-cyan-500/15 bg-slate-900/60 px-3 py-2",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        children: "+1h"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/analytics/page.js",
+                                                        lineNumber: 136,
+                                                        columnNumber: 37
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        className: "text-cyan-200 font-semibold",
+                                                        children: formatPct(forecast.pred_congestion_plus_1h)
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/analytics/page.js",
+                                                        lineNumber: 137,
+                                                        columnNumber: 37
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/src/app/analytics/page.js",
+                                                lineNumber: 135,
+                                                columnNumber: 33
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "flex items-center justify-between rounded-lg border border-cyan-500/15 bg-slate-900/60 px-3 py-2",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        children: "+2h"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/analytics/page.js",
+                                                        lineNumber: 140,
+                                                        columnNumber: 37
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        className: "text-cyan-200 font-semibold",
+                                                        children: formatPct(forecast.pred_congestion_plus_2h)
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/analytics/page.js",
+                                                        lineNumber: 141,
+                                                        columnNumber: 37
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/src/app/analytics/page.js",
+                                                lineNumber: 139,
+                                                columnNumber: 33
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "flex items-center justify-between rounded-lg border border-cyan-500/15 bg-slate-900/60 px-3 py-2",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        children: "+6h"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/analytics/page.js",
+                                                        lineNumber: 144,
+                                                        columnNumber: 37
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        className: "text-cyan-200 font-semibold",
+                                                        children: formatPct(forecast.pred_congestion_plus_6h)
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/analytics/page.js",
+                                                        lineNumber: 145,
+                                                        columnNumber: 37
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/src/app/analytics/page.js",
+                                                lineNumber: 143,
+                                                columnNumber: 33
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "flex items-center justify-between rounded-lg border border-cyan-500/15 bg-slate-900/60 px-3 py-2",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        children: "+24h"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/analytics/page.js",
+                                                        lineNumber: 148,
+                                                        columnNumber: 37
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        className: "text-cyan-200 font-semibold",
+                                                        children: formatPct(forecast.pred_congestion_plus_24h)
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/analytics/page.js",
+                                                        lineNumber: 149,
+                                                        columnNumber: 37
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/src/app/analytics/page.js",
+                                                lineNumber: 147,
+                                                columnNumber: 33
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/src/app/analytics/page.js",
+                                        lineNumber: 134,
+                                        columnNumber: 29
                                     }, this),
                                     selectedSegment && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "text-xs text-slate-300",
@@ -2216,13 +2299,13 @@ function AnalyticsPage() {
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/analytics/page.js",
-                                        lineNumber: 153,
+                                        lineNumber: 154,
                                         columnNumber: 29
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/analytics/page.js",
-                                lineNumber: 120,
+                                lineNumber: 113,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
@@ -2238,14 +2321,14 @@ function AnalyticsPage() {
                                                         className: "h-5 w-5 text-amber-400"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/analytics/page.js",
-                                                        lineNumber: 162,
+                                                        lineNumber: 163,
                                                         columnNumber: 33
                                                     }, this),
                                                     " Top 5 Critical Roads"
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/app/analytics/page.js",
-                                                lineNumber: 161,
+                                                lineNumber: 162,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2253,13 +2336,13 @@ function AnalyticsPage() {
                                                 children: "Live"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/analytics/page.js",
-                                                lineNumber: 164,
+                                                lineNumber: 165,
                                                 columnNumber: 29
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/analytics/page.js",
-                                        lineNumber: 160,
+                                        lineNumber: 161,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2276,7 +2359,7 @@ function AnalyticsPage() {
                                                                     children: seg.segment_name
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/app/analytics/page.js",
-                                                                    lineNumber: 178,
+                                                                    lineNumber: 179,
                                                                     columnNumber: 41
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2287,13 +2370,13 @@ function AnalyticsPage() {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/src/app/analytics/page.js",
-                                                                    lineNumber: 179,
+                                                                    lineNumber: 180,
                                                                     columnNumber: 41
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/src/app/analytics/page.js",
-                                                            lineNumber: 177,
+                                                            lineNumber: 178,
                                                             columnNumber: 37
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2303,7 +2386,7 @@ function AnalyticsPage() {
                                                                     className: "h-3 w-3"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/app/analytics/page.js",
-                                                                    lineNumber: 182,
+                                                                    lineNumber: 183,
                                                                     columnNumber: 41
                                                                 }, this),
                                                                 " ",
@@ -2311,13 +2394,13 @@ function AnalyticsPage() {
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/src/app/analytics/page.js",
-                                                            lineNumber: 181,
+                                                            lineNumber: 182,
                                                             columnNumber: 37
                                                         }, this)
                                                     ]
                                                 }, seg.road_id, true, {
                                                     fileName: "[project]/src/app/analytics/page.js",
-                                                    lineNumber: 168,
+                                                    lineNumber: 169,
                                                     columnNumber: 33
                                                 }, this)),
                                             !hotspots.length && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2325,25 +2408,25 @@ function AnalyticsPage() {
                                                 children: "Waiting for live readings…"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/analytics/page.js",
-                                                lineNumber: 187,
+                                                lineNumber: 188,
                                                 columnNumber: 33
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/analytics/page.js",
-                                        lineNumber: 166,
+                                        lineNumber: 167,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/analytics/page.js",
-                                lineNumber: 159,
+                                lineNumber: 160,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/analytics/page.js",
-                        lineNumber: 119,
+                        lineNumber: 112,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
@@ -2352,29 +2435,33 @@ function AnalyticsPage() {
                             criticalSegments: hotspots
                         }, void 0, false, {
                             fileName: "[project]/src/app/analytics/page.js",
-                            lineNumber: 194,
+                            lineNumber: 195,
                             columnNumber: 21
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/app/analytics/page.js",
-                        lineNumber: 193,
+                        lineNumber: 194,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/analytics/page.js",
-                lineNumber: 102,
+                lineNumber: 95,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/analytics/page.js",
-        lineNumber: 100,
+        lineNumber: 93,
         columnNumber: 9
     }, this);
 }
 function getHotspots(readings) {
     return (readings || []).filter((s)=>(s.congestion_pct ?? 0) > 65).sort((a, b)=>b.congestion_pct - a.congestion_pct).slice(0, 5);
+}
+function formatPct(v) {
+    if (v == null) return "--";
+    return `${(v * 100).toFixed(1)}%`;
 }
 }),
 ];

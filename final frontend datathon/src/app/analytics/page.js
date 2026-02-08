@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
 import { AlertTriangle, Clock, MapPin, TrendingUp } from "lucide-react";
 
 import { Navbar } from "@/components/ui/Navbar";
@@ -10,15 +9,12 @@ import TrafficChatbot from "@/components/dashboard/TrafficChatbot";
 import { useDashboardContext } from "@/hooks/useDashboardContext";
 import { ForecastingChart } from "@/components/dashboard/ForecastingChart";
 
-const horizonOptions = [60, 120, 360, 1440]; // minutes => 1h, 2h, 6h, 24h
-
 export default function AnalyticsPage() {
     const [liveReadings, setLiveReadings] = useState([]);
     const [selectedSegment, setSelectedSegment] = useState(null);
     const [forecast, setForecast] = useState(null);
     const [loadingForecast, setLoadingForecast] = useState(false);
     const [error, setError] = useState("");
-    const [horizonMinutes, setHorizonMinutes] = useState(360);
     const context = useDashboardContext();
 
     // Fetch metadata + live congestion snapshots (synthetic when backend lacks live stream)
@@ -83,18 +79,15 @@ export default function AnalyticsPage() {
             { key: "pred_congestion_plus_6h", hours: 6 },
             { key: "pred_congestion_plus_24h", hours: 24 },
         ];
-        const maxHours = horizonMinutes / 60;
-        const future = entries
-            .filter((e) => e.hours <= maxHours)
-            .map((e) => ({
-                hour: e.hours,
-                label: `+${e.hours}h`,
-                time: new Date(now.getTime() + e.hours * 3600 * 1000)
-                    .toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-                value: (forecast[e.key] ?? 0) * 100,
-            }));
+        const future = entries.map((e) => ({
+            hour: e.hours,
+            label: `+${e.hours}h`,
+            time: new Date(now.getTime() + e.hours * 3600 * 1000)
+                .toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+            value: (forecast[e.key] ?? 0) * 100,
+        }));
         return [current, ...future];
-    }, [forecast, horizonMinutes, selectedSegment]);
+    }, [forecast, selectedSegment]);
 
     return (
         <main className="min-h-screen bg-gradient-to-b from-[#05060a] via-[#0b0f1a] to-[#05060a] text-foreground pb-20">
@@ -125,18 +118,6 @@ export default function AnalyticsPage() {
                                 </h3>
                                 <p className="text-xs text-slate-400">Datathon multi-horizon model, segment-linked.</p>
                             </div>
-                            <div className="flex items-center gap-2 text-xs text-slate-300">
-                                Horizon
-                                <select
-                                    value={horizonMinutes}
-                                    onChange={(e) => setHorizonMinutes(Number(e.target.value))}
-                                    className="bg-slate-900 border border-cyan-500/30 text-cyan-100 text-xs rounded-md px-2 py-1"
-                                >
-                                    {horizonOptions.map((m) => (
-                                        <option key={m} value={m}>{m >= 1440 ? "24h" : `${m / 60}h`}</option>
-                                    ))}
-                                </select>
-                            </div>
                         </div>
 
                         <div className="min-h-[320px] rounded-lg bg-gradient-to-br from-slate-900 via-slate-950 to-black border border-cyan-500/10 p-3">
@@ -149,6 +130,26 @@ export default function AnalyticsPage() {
                                 <ForecastingChart context={context} data={chartData} />
                             )}
                         </div>
+                        {forecast && (
+                            <div className="text-xs text-slate-400 grid grid-cols-2 gap-2">
+                                <div className="flex items-center justify-between rounded-lg border border-cyan-500/15 bg-slate-900/60 px-3 py-2">
+                                    <span>+1h</span>
+                                    <span className="text-cyan-200 font-semibold">{formatPct(forecast.pred_congestion_plus_1h)}</span>
+                                </div>
+                                <div className="flex items-center justify-between rounded-lg border border-cyan-500/15 bg-slate-900/60 px-3 py-2">
+                                    <span>+2h</span>
+                                    <span className="text-cyan-200 font-semibold">{formatPct(forecast.pred_congestion_plus_2h)}</span>
+                                </div>
+                                <div className="flex items-center justify-between rounded-lg border border-cyan-500/15 bg-slate-900/60 px-3 py-2">
+                                    <span>+6h</span>
+                                    <span className="text-cyan-200 font-semibold">{formatPct(forecast.pred_congestion_plus_6h)}</span>
+                                </div>
+                                <div className="flex items-center justify-between rounded-lg border border-cyan-500/15 bg-slate-900/60 px-3 py-2">
+                                    <span>+24h</span>
+                                    <span className="text-cyan-200 font-semibold">{formatPct(forecast.pred_congestion_plus_24h)}</span>
+                                </div>
+                            </div>
+                        )}
                         {selectedSegment && (
                             <div className="text-xs text-slate-300">
                                 Showing {selectedSegment.segment_name} ({selectedSegment.road_id}) · {chartData.length} horizons · live congestion {selectedSegment.congestion_pct?.toFixed?.(1) ?? "--"}%
@@ -203,4 +204,9 @@ function getHotspots(readings) {
         .filter((s) => (s.congestion_pct ?? 0) > 65)
         .sort((a, b) => b.congestion_pct - a.congestion_pct)
         .slice(0, 5);
+}
+
+function formatPct(v) {
+    if (v == null) return "--";
+    return `${(v * 100).toFixed(1)}%`;
 }

@@ -44,3 +44,9 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Next.js build output
+.next/
+
+# Virtual environment
+.venv/

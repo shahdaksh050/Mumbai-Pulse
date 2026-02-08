@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid, ReferenceArea } from "recharts";
+import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid, ReferenceArea, Area } from "recharts";
 import { fetchSegments, fetchDatathonForecast } from "@/lib/api";
 import { useDashboardContext } from "@/hooks/useDashboardContext";
 
@@ -25,6 +25,7 @@ export function ForecastingChart({ context, data }) {
     const [error, setError] = useState("");
 
     useEffect(() => {
+        if (Array.isArray(data) && data.length) return; // external data mode: skip fetch
         let mounted = true;
         fetchSegments()
             .then((data) => {
@@ -38,7 +39,7 @@ export function ForecastingChart({ context, data }) {
         return () => {
             mounted = false;
         };
-    }, [roadId]);
+    }, [roadId, data]);
 
     useEffect(() => {
         if (!roadId || !timestamp) return;
@@ -57,34 +58,44 @@ export function ForecastingChart({ context, data }) {
         return () => {
             mounted = false;
         };
-    }, [roadId, timestamp]);
+    }, [roadId, timestamp, data]);
 
     const chartData = useMemo(() => {
-        if (Array.isArray(data) && data.length) return data;
-        if (!forecast) return [];
-        const base = new Date(forecast.timestamp || timestamp);
-        const entries = [
-            { key: "pred_congestion_plus_1h", hours: 1, band: forecast.pred_congestion_band_plus_1h },
-            { key: "pred_congestion_plus_2h", hours: 2, band: forecast.pred_congestion_band_plus_2h },
-            { key: "pred_congestion_plus_6h", hours: 6, band: forecast.pred_congestion_band_plus_6h },
-            { key: "pred_congestion_plus_24h", hours: 24, band: forecast.pred_congestion_band_plus_24h },
-        ];
-        return entries.map(({ key, hours, band }) => {
-            const t = new Date(base.getTime() + hours * 60 * 60 * 1000);
-            const value = forecast[key] != null ? forecast[key] * 100 : null;
+        const anchorData = Array.isArray(data) && data.length ? data : null;
+        const baseForecast = forecast && !anchorData;
+        if (!anchorData && !baseForecast) return [];
+
+        const baseTime = baseForecast ? new Date(forecast.timestamp || timestamp) : new Date();
+        const anchors = anchorData || [
+            { hour: 1, key: "pred_congestion_plus_1h", band: forecast.pred_congestion_band_plus_1h },
+            { hour: 2, key: "pred_congestion_plus_2h", band: forecast.pred_congestion_band_plus_2h },
+            { hour: 6, key: "pred_congestion_plus_6h", band: forecast.pred_congestion_band_plus_6h },
+            { hour: 24, key: "pred_congestion_plus_24h", band: forecast.pred_congestion_band_plus_24h },
+        ].map((entry) => {
+            const value = forecast?.[entry.key] != null ? forecast[entry.key] * 100 : null;
+            if (value == null) return null;
+            const t = new Date(baseTime.getTime() + entry.hour * 3600 * 1000);
             return {
-                hour: hours,
-                label: `+${hours}h`,
-                time: t.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+                hour: entry.hour,
                 value,
-                band,
+                band: entry.band,
+                time: t.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
             };
-        }).filter((d) => d.value !== null);
+        }).filter(Boolean);
+
+        // Deduplicate by hour
+        const seen = new Set();
+        const deduped = [];
+        for (const pt of anchors.sort((a, b) => a.hour - b.hour)) {
+            if (seen.has(pt.hour)) continue;
+            seen.add(pt.hour);
+            deduped.push(pt);
+        }
+        return deduped;
     }, [data, forecast, timestamp]);
 
-    const hotData = useMemo(() => chartData.map((d) => ({ ...d, hot: d.value >= 90 ? d.value : null })), [chartData]);
-
-    const showControls = !(Array.isArray(data) && data.length);
+    const externalData = Array.isArray(data) && data.length;
+    const showControls = !externalData;
 
     return (
         <div className="w-full min-h-[320px] flex flex-col p-4 bg-card/40 backdrop-blur-sm border border-border/50 rounded-xl min-w-0">
@@ -125,30 +136,31 @@ export function ForecastingChart({ context, data }) {
                 )}
             </div>
 
-            {error && <p className="text-sm text-red-500 mb-2">{error}</p>}
-            {loading && <p className="text-sm text-muted-foreground mb-2">Fetching forecast…</p>}
+            {!externalData && error && <p className="text-sm text-red-500 mb-2">{error}</p>}
+            {!externalData && loading && <p className="text-sm text-muted-foreground mb-2">Fetching forecast…</p>}
 
             <div className="w-full min-h-[260px] min-w-0">
                 <ResponsiveContainer width="100%" height={320} minWidth={0}>
-                    <LineChart data={hotData} margin={{ top: 12, right: 16, bottom: 8, left: 0 }}>
+                    <LineChart data={chartData} margin={{ top: 12, right: 16, bottom: 12, left: 0 }}>
                         <defs>
                             <linearGradient id="congestion-gradient" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor="var(--primary)" stopOpacity={1} />
-                                <stop offset="100%" stopColor="var(--primary)" stopOpacity={0.85} />
+                                <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.18} />
+                                <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
                             </linearGradient>
                         </defs>
 
                         <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.3} vertical={false} />
                         <XAxis
+                            type="number"
                             dataKey="hour"
+                            domain={[0, 24]}
+                            ticks={[0, 4, 8, 12, 16, 20, 24]}
                             stroke="var(--muted-foreground)"
                             fontSize={10}
                             tickLine={false}
                             axisLine={false}
                             dy={10}
                             tickFormatter={(v) => `+${v}h`}
-                            domain={[0, 24]}
-                            type="number"
                         />
                         <YAxis
                             stroke="var(--muted-foreground)"
@@ -171,6 +183,7 @@ export function ForecastingChart({ context, data }) {
                                 const band = props?.payload?.band;
                                 return [`${value?.toFixed?.(2)}%${band ? ` (${band})` : ""}`, "Congestion"];
                             }}
+                            labelFormatter={(hour) => `+${hour}h`}
                         />
 
                         {rainWindow && (
@@ -198,23 +211,21 @@ export function ForecastingChart({ context, data }) {
                             />
                         ))}
 
-                        <Line
+                        <Area
                             type="monotone"
                             dataKey="value"
-                            stroke="url(#congestion-gradient)"
-                            strokeWidth={2.5}
-                            dot={{ r: 4, fill: "var(--primary)", strokeWidth: 0 }}
-                            activeDot={{ r: 6, strokeWidth: 0, fill: "var(--primary)" }}
+                            stroke="none"
+                            fill="url(#congestion-gradient)"
                             isAnimationActive={false}
                         />
 
                         <Line
                             type="monotone"
-                            dataKey="hot"
-                            stroke="red"
+                            dataKey="value"
+                            stroke="var(--primary)"
                             strokeWidth={3}
-                            dot={false}
-                            connectNulls
+                            dot={{ r: 5, fill: "var(--primary)", stroke: "#0b1220", strokeWidth: 2 }}
+                            activeDot={{ r: 6, strokeWidth: 0, fill: "var(--primary)" }}
                             isAnimationActive={false}
                         />
                     </LineChart>
