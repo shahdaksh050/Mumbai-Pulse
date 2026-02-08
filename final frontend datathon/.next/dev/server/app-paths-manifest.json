@@ -1,0 +1,7 @@
+{
+  "/alerts/page": "app/alerts/page.js",
+  "/analytics/page": "app/analytics/page.js",
+  "/map/page": "app/map/page.js",
+  "/navigator/page": "app/navigator/page.js",
+  "/page": "app/page.js"
+}

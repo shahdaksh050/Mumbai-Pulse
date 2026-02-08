@@ -1,0 +1,202 @@
+road_id,road_name,segment_name,lat,lon
+AIR_1,Airport Approach Road,Terminal 2 (Sahar),19.0896,72.8656
+AIR_2,Airport Approach Road,Terminal 1 (Santacruz),19.0945,72.853
+AKR_1,Andheri-Kurla Road,Saki Naka,19.089,72.8884
+AKR_2,Andheri-Kurla Road,Marol,19.1083,72.8856
+AKR_3,Andheri-Kurla Road,Chakala,19.1105,72.8628
+AKR_4,Andheri-Kurla Road,Kurla West,19.073,72.8795
+WOR_1,Annie Besant Road,Worli Naka,19.0097,72.8175
+WOR_2,Annie Besant Road,Prabhadevi,19.0144,72.8258
+BKC_1,BKC Connector,Bandra East Entry,19.0607,72.8691
+BKC_2,BKC Connector,BKC Central,19.0672,72.8664
+BKC_3,BKC Connector,BKC Near US Consulate,19.066,72.8635
+BKC_4,BKC Connector,BKC - MMRDA Grounds,19.0688,72.862
+BWSL_1,Bandra-Worli Sea Link Approach,Bandra Reclamation,19.0353,72.8166
+BWSL_2,Bandra-Worli Sea Link Approach,Worli End,19.0167,72.8162
+CAR_1,Carter Road,Bandra West,19.06,72.8192
+CHE_1,Chembur Junction Approaches,Amar Mahal Junction,19.0642,72.8936
+DHA_1,Dharavi Main Road,Dharavi Junction,19.0431,72.853
+EMR_1,Dr. E Moses Road,Mahalaxmi,18.9838,72.8039
+EEH_1,Eastern Express Highway,Mulund,19.1736,72.957
+EEH_2,Eastern Express Highway,Ghatkopar,19.0867,72.9073
+EEH_3,Eastern Express Highway,Sion,19.0455,72.8632
+EEH_4,Eastern Express Highway,Bhandup,19.1438,72.943
+EEH_5,Eastern Express Highway,Vikhroli,19.1119,72.9341
+EEH_6,Eastern Express Highway,Kurla,19.0734,72.8847
+EEH_7,Eastern Express Highway,Chembur Naka,19.0564,72.889
+GMLR_1,Ghatkopar-Mankhurd Link Road,Ghatkopar Link Start,19.0891,72.9152
+GMLR_2,Ghatkopar-Mankhurd Link Road,Mankhurd End,19.0468,72.9396
+JVLR_1,JVLR,WEH Junction,19.1316,72.8464
+JVLR_2,JVLR,Powai,19.1194,72.9055
+JVLR_3,JVLR,IIT Powai,19.1325,72.915
+JVLR_4,JVLR,Kanjurmarg Link,19.1246,72.9287
+JTR_1,Juhu Tara Road,Juhu,19.0979,72.8261
+LBS_1,LBS Marg,Mulund West,19.1725,72.9457
+LBS_2,LBS Marg,Vikhroli West,19.1075,72.9289
+LBS_3,LBS Marg,Bhandup West,19.1432,72.9353
+LBS_4,LBS Marg,Kanjurmarg,19.1307,72.9343
+LBS_5,LBS Marg,Ghatkopar West,19.086,72.909
+LNK_1,Linking Road,Bandra,19.0604,72.8352
+LNK_2,Linking Road,Khar,19.0718,72.833
+LNK_3,Linking Road,Santacruz,19.0808,72.8324
+MAH_1,Mahim Junction Approaches,Mahim Causeway,19.0402,72.84
+MAR_1,Marine Drive,Churchgate,18.9335,72.8257
+MAR_2,Marine Drive,Nariman Point,18.9256,72.8232
+NMJ_1,N. M. Joshi Marg,Byculla,18.9769,72.8326
+PDR_1,P. D'Mello Road,CST / Masjid Bunder,18.9508,72.838
+PED_1,Peddar Road,Kemps Corner,18.9647,72.8075
+SVR_1,S V Road,Bandra,19.0548,72.8407
+SVR_2,S V Road,Khar,19.0702,72.8337
+SVR_3,S V Road,Santacruz,19.0798,72.8332
+SVR_4,S V Road,Vile Parle,19.0996,72.8426
+SVR_5,S V Road,Andheri,19.119,72.846
+SVR_6,S V Road,Goregaon,19.1663,72.8499
+SVR_7,S V Road,Malad,19.1861,72.8488
+SVR_8,S V Road,Borivali,19.23,72.8565
+SCLR_1,SCLR,Santacruz East,19.0794,72.8563
+SCLR_2,SCLR,Chembur Exit,19.0616,72.8971
+SCLR_3,SCLR,CST Road / Kurla,19.0775,72.8818
+SAH_1,Sahar Elevated Road,Sahar Elevated Entry,19.1072,72.8622
+SAH_2,Sahar Elevated Road,Andheri East Exit,19.1157,72.8592
+SBM_1,Senapati Bapat Marg,Dadar West,19.0209,72.842
+SBM_2,Senapati Bapat Marg,Lower Parel,18.9982,72.8291
+SIO_1,Sion Junction Approaches,Sion Circle,19.0408,72.8629
+SPH_1,Sion-Panvel Highway,Chembur,19.0623,72.8974
+SPH_2,Sion-Panvel Highway,Mankhurd,19.0509,72.9296
+SPH_3,Sion-Panvel Highway,Vashi,19.0748,72.998
+SPH_4,Sion-Panvel Highway,Govandi,19.0475,72.916
+SPH_5,Sion-Panvel Highway,Vashi Toll / Entry,19.0689,72.996
+SPH_6,Sion-Panvel Highway,Sanpada,19.0606,72.9952
+TAR_1,Tardeo Road,Tardeo,18.9729,72.809
+THN_1,Thane Entry Corridor,Mulund Check Naka,19.1751,72.9622
+THN_2,Thane Entry Corridor,Teen Hath Naka (Thane),19.1916,72.9712
+WEH_1,Western Express Highway,Dahisar East,19.2514,72.8653
+WEH_10,Western Express Highway,Santacruz East,19.0816,72.8487
+WEH_2,Western Express Highway,Goregaon East,19.1633,72.8497
+WEH_3,Western Express Highway,Andheri East,19.1197,72.8468
+WEH_4,Western Express Highway,Bandra East,19.0556,72.8426
+WEH_5,Western Express Highway,Borivali East,19.228,72.8546
+WEH_6,Western Express Highway,Kandivali East,19.2045,72.8571
+WEH_7,Western Express Highway,Malad East,19.1871,72.8486
+WEH_8,Western Express Highway,Jogeshwari East,19.1351,72.854
+WEH_9,Western Express Highway,Vile Parle East,19.0991,72.8527
+NLR_101,New Link Road,Chembur Bus Stop,18.9785,72.8219
+ARY_101,Aarey Colony Road,Matunga Church,19.0618,72.9731
+CAR_101,Central Avenue Road,Worli Exit,19.2898,72.8997
+LNK_101,Link Road,Byculla Signal,19.0,72.973
+MRV_101,Marve Road,Dahisar Entry,19.0391,72.8754
+JTR_101,Juhu Tara Road,Matunga Junction,19.046,72.9831
+HGR_101,Hiranandani Gardens Road,Prabhadevi Mall,19.032,72.8792
+PBR_101,Palms Beach Road,Sion Bus Stop,19.099,72.9669
+WEH_101,Western Express Highway,Parel Underpass,19.0445,72.9882
+HGR_102,Hiranandani Gardens Road,Mulund Main Crossing,19.0904,72.9982
+CAR_102,Central Avenue Road,Sion Entry,18.9231,72.8917
+SPH_101,Sion-Panvel Highway,Powai Market,19.288,72.9814
+PBR_102,Palms Beach Road,Versova Underpass,19.0377,72.8027
+GMLR_101,Ghatkopar-Mankhurd Link Road,Mankhurd Underpass,19.1717,72.9213
+LBS_101,Lal Bahadur Shastri Marg,Borivali Temple,19.1163,72.9428
+GML_101,Goregaon-Mulund Link Road,Colaba Flyover,19.2929,72.8407
+LOK_101,Lokhandwala Road,Kandivali Exit,18.999,72.8593
+SVR_101,Swami Vivekanand Road,Airoli Mall,19.0152,72.8659
+ARY_102,Aarey Colony Road,Prabhadevi Bus Stop,19.0536,72.8328
+LBS_102,Lal Bahadur Shastri Marg,Vashi Church,18.9104,72.9775
+LOK_102,Lokhandwala Road,Chembur Toll Naka,19.2998,72.8307
+HGR_103,Hiranandani Gardens Road,Andheri Bridge,19.1314,72.9863
+NLR_102,New Link Road,Govandi Flyover,19.225,72.9595
+ARY_103,Aarey Colony Road,Kurla Toll Naka,19.0633,72.8717
+PBR_103,Palms Beach Road,Dahisar Underpass,19.2273,72.9126
+ARY_104,Aarey Colony Road,Colaba Main Crossing,18.9779,72.9215
+SBL_101,Sion-Bandra Link Road,Versova Bus Stop,19.1284,72.8254
+GMLR_102,Ghatkopar-Mankhurd Link Road,Mulund Station,19.0704,72.8136
+ARY_105,Aarey Colony Road,Mankhurd Bridge,19.2946,72.8465
+LNK_102,Link Road,Prabhadevi Station,19.257,72.8719
+HGR_104,Hiranandani Gardens Road,Bandra Flyover,19.036,72.9217
+SPH_102,Sion-Panvel Highway,Matunga Mosque,18.9146,72.8668
+WEH_102,Western Express Highway,Colaba Exit,19.2823,72.8618
+GML_102,Goregaon-Mulund Link Road,Jogeshwari Hospital,19.2038,72.8554
+LOK_103,Lokhandwala Road,Andheri Exit,19.2609,72.8943
+CAR_103,Central Avenue Road,Govandi Main Crossing,19.1582,72.826
+JTR_102,Juhu Tara Road,Kandivali Park,18.9777,72.9129
+EFW_101,Eastern Freeway,Kurla Underpass,19.0921,72.8463
+EFW_102,Eastern Freeway,Matunga Bridge,19.1625,72.9712
+ARY_106,Aarey Colony Road,Versova Bus Stop,19.2285,72.9063
+MRV_102,Marve Road,Chembur Flyover,19.1867,72.9108
+GML_103,Goregaon-Mulund Link Road,Chembur Station,19.2761,72.9579
+CAR_104,Central Avenue Road,Mahim Main Crossing,19.2624,72.8431
+JVLR_101,Jogeshwari-Vikhroli Link Road,Prabhadevi Signal,18.9938,72.9368
+LOK_104,Lokhandwala Road,Chembur Flyover,19.0101,72.8888
+HGR_105,Hiranandani Gardens Road,Juhu Station,18.9179,72.9257
+GML_104,Goregaon-Mulund Link Road,Airoli Underpass,18.9166,72.9209
+MRV_103,Marve Road,Mankhurd School,19.2371,72.8301
+NLR_103,New Link Road,Prabhadevi Mall,18.9787,72.9479
+EFW_103,Eastern Freeway,Santacruz Signal,19.1533,72.8132
+EEH_101,Eastern Express Highway,Dadar Signal,19.0397,72.8006
+WEH_103,Western Express Highway,Andheri Flyover,19.029,72.9665
+PBR_104,Palms Beach Road,Juhu Bridge,19.1676,72.8876
+ARY_107,Aarey Colony Road,Dadar Toll Naka,19.1051,72.8292
+LOK_105,Lokhandwala Road,Khar Signal,19.1982,72.9008
+WEH_104,Western Express Highway,Colaba Hospital,19.1436,72.884
+GML_105,Goregaon-Mulund Link Road,Powai Exit,19.0066,72.8288
+JVLR_102,Jogeshwari-Vikhroli Link Road,Parel Signal,19.1178,72.897
+CAR_105,Central Avenue Road,Govandi Signal,19.0372,72.8811
+MRV_104,Marve Road,Ghatkopar Flyover,19.2748,72.9088
+NLR_104,New Link Road,Dahisar Underpass,19.0018,72.97
+CAR_106,Central Avenue Road,Kandivali Entry,19.0427,72.8172
+JVLR_103,Jogeshwari-Vikhroli Link Road,Dadar Park,18.9146,72.9763
+PBR_105,Palms Beach Road,Khar Bus Stop,19.0304,72.8198
+LNK_103,Link Road,Parel Main Crossing,18.943,72.9345
+MRV_105,Marve Road,Ghatkopar Bus Stop,19.0296,72.8433
+JVLR_104,Jogeshwari-Vikhroli Link Road,Parel Temple,19.0743,72.8258
+MDR_101,Marine Drive,Jogeshwari School,19.202,72.862
+SBL_102,Sion-Bandra Link Road,Mankhurd Park,18.9948,72.8673
+GMLR_103,Ghatkopar-Mankhurd Link Road,Prabhadevi Main Crossing,18.9399,72.9589
+WEH_105,Western Express Highway,Mulund Temple,19.2162,72.9689
+LBS_103,Lal Bahadur Shastri Marg,Mankhurd Underpass,19.0693,72.9972
+SPH_103,Sion-Panvel Highway,Kandivali Mall,19.1104,72.8409
+GMLR_104,Ghatkopar-Mankhurd Link Road,Prabhadevi Station,18.9567,72.8811
+EFW_104,Eastern Freeway,Worli Hospital,19.1758,72.8767
+HGR_106,Hiranandani Gardens Road,Prabhadevi Flyover,19.1768,72.8072
+NLR_105,New Link Road,Thane Main Crossing,18.9398,72.8324
+LBS_104,Lal Bahadur Shastri Marg,Bandra Underpass,19.1992,72.9572
+SBL_103,Sion-Bandra Link Road,Juhu Bus Stop,19.2676,72.9809
+EEH_102,Eastern Express Highway,Powai Main Crossing,19.089,72.933
+MRV_106,Marve Road,Andheri Signal,19.0744,72.8193
+SVR_102,Swami Vivekanand Road,Malad Entry,19.2373,72.8993
+MDR_102,Marine Drive,Goregaon Toll Naka,19.1464,72.8962
+JVLR_105,Jogeshwari-Vikhroli Link Road,Mahim Market,19.0734,72.9382
+HGR_107,Hiranandani Gardens Road,Powai Toll Naka,18.9701,72.8062
+MDR_103,Marine Drive,Borivali Entry,19.2219,72.8265
+NLR_106,New Link Road,Versova Toll Naka,18.9257,72.8131
+MDR_104,Marine Drive,Dadar Hospital,18.9847,72.8514
+SBL_104,Sion-Bandra Link Road,Mulund Station,19.1337,72.9017
+JTR_103,Juhu Tara Road,Airoli Exit,18.9145,72.9912
+PBR_106,Palms Beach Road,Parel Bridge,19.2615,72.9973
+MDR_105,Marine Drive,Byculla School,19.1571,72.8797
+SBL_105,Sion-Bandra Link Road,Kurla Entry,18.9395,72.8118
+JVLR_106,Jogeshwari-Vikhroli Link Road,Mahim Station,19.1785,72.8167
+MRV_107,Marve Road,Andheri Mall,19.1152,72.8291
+LNK_104,Link Road,Mankhurd School,18.994,72.8613
+EFW_105,Eastern Freeway,Goregaon Mosque,18.9119,72.9562
+MRV_108,Marve Road,Chembur Flyover,19.0683,72.8624
+MRV_109,Marve Road,Airoli Station,18.9868,72.9612
+LNK_105,Link Road,Prabhadevi Bridge,18.9234,72.9481
+HGR_108,Hiranandani Gardens Road,Vile Parle Main Crossing,19.1643,72.9341
+JVLR_107,Jogeshwari-Vikhroli Link Road,Byculla Entry,19.2593,72.8158
+EFW_106,Eastern Freeway,Juhu Circle,18.9742,72.8618
+ARY_108,Aarey Colony Road,Versova Entry,19.034,72.8653
+EFW_107,Eastern Freeway,Sion Mosque,18.9749,72.9155
+HGR_109,Hiranandani Gardens Road,Lower Parel Hospital,19.0601,72.8263
+LNK_106,Link Road,Khar Hospital,19.1398,72.8248
+HGR_110,Hiranandani Gardens Road,Dahisar Mall,19.136,72.8493
+CAR_107,Central Avenue Road,Mulund Exit,19.1911,72.8174
+SVR_103,Swami Vivekanand Road,Andheri Market,18.9781,72.8067
+SPH_104,Sion-Panvel Highway,Mahim Entry,19.0592,72.8685
+LOK_106,Lokhandwala Road,Colaba Circle,19.2485,72.9386
+SPH_105,Sion-Panvel Highway,Mahim Mall,19.2052,72.8936
+MRV_110,Marve Road,Sion Bus Stop,19.0172,72.9578
+LBS_105,Lal Bahadur Shastri Marg,Matunga Exit,19.2115,72.8839
+LBS_106,Lal Bahadur Shastri Marg,Colaba Station,18.9898,72.8478
+GMLR_105,Ghatkopar-Mankhurd Link Road,Kandivali School,18.9798,72.8973
+GML_106,Goregaon-Mulund Link Road,Kandivali Underpass,19.0963,72.9009
+LNK_107,Link Road,Mahim School,18.9563,72.8044
+EEH_103,Eastern Express Highway,Malad Hospital,19.1921,72.8766

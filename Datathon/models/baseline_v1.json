@@ -1,0 +1,12 @@
+{
+  "version": "v1",
+  "model": "XGBoost mean regression",
+  "horizons": [
+    1,
+    2,
+    6,
+    24
+  ],
+  "loss": "RMSE",
+  "notes": "Baseline multi-horizon congestion forecasting model"
+}

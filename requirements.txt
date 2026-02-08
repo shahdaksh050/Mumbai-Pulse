@@ -1,0 +1,26 @@
+# Urban Traffic Congestion Forecasting — Python Backend
+# Core
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+pydantic>=2.0
+python-dotenv>=1.0.0    # Environment variable management
+
+# Async database
+motor>=3.3.0          # Async MongoDB driver
+# sqlalchemy[asyncio]>=2.0  # Removed for MongoDB
+# aiosqlite               # SQLite async driver (replaced with MongoDB)
+# asyncpg              # PostgreSQL driver (replaced with MongoDB)
+
+# ML / Data
+torch>=2.0
+numpy>=1.24
+pandas>=2.0
+joblib>=1.3
+scikit-learn>=1.3       # optional, for metrics
+xgboost                 # needed for legacy classifier pickles
+pyarrow                 # parquet reader for Datathon model data
+
+# Dev / testing
+httpx                   # async test client for FastAPI
+pytest
+pytest-asyncio

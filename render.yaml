@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: mumbai-traffic-api
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn src.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10
+      - key: DATABASE_URL
+        value: "sqlite+aiosqlite:///./traffic.db"
+      - key: MODEL_PATH
+        value: "models/tcn_congestion.pt"
+      - key: SCALER_PATH
+        value: "models/scaler.joblib"
+      - key: EVENTBRITE_TOKEN
+        sync: false
