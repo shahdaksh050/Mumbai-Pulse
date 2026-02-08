@@ -48,5 +48,9 @@ Thumbs.db
 # Next.js build output
 .next/
 
+# Node
+node_modules/
+**/node_modules/
+
 # Virtual environment
 .venv/

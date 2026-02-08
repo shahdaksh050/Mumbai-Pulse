@@ -4,22 +4,43 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { fetchDatathonForecast, searchPredictions } from "@/lib/api";
-import { STATIC_SEGMENTS } from "@/lib/staticSegments";
+import { fetchDatathonForecast, fetchSegments, searchPredictions } from "@/lib/api";
 
 const LeafletMap = dynamic(() => import("@/components/dashboard/LeafletMap"), { ssr: false });
 
 export default function NavigatorDashboard() {
     const searchParams = useSearchParams();
-    const [selectedRoadId, setSelectedRoadId] = useState(() => STATIC_SEGMENTS[0]?.road_id || "");
+    const [segments, setSegments] = useState([]);
+    const [selectedRoadId, setSelectedRoadId] = useState("");
     const [liveReadings, setLiveReadings] = useState([]);
     const [prediction, setPrediction] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
+    useEffect(() => {
+        let mounted = true;
+        fetchSegments()
+            .then((data) => {
+                if (!mounted) return;
+                const list = Array.isArray(data) ? data : [];
+                setSegments(list);
+                if (!selectedRoadId && list.length) setSelectedRoadId(list[0].road_id);
+            })
+            .catch(() => {});
+        return () => { mounted = false; };
+    }, [selectedRoadId]);
+
+    const sortedSegments = useMemo(() => {
+        return [...segments].sort((a, b) => {
+            const nameA = (a.segment_name || a.road_name || "").toLowerCase();
+            const nameB = (b.segment_name || b.road_name || "").toLowerCase();
+            return nameA.localeCompare(nameB);
+        });
+    }, [segments]);
+
     const selectedSegment = useMemo(
-        () => STATIC_SEGMENTS.find((s) => s.road_id === selectedRoadId) || STATIC_SEGMENTS[0],
-        [selectedRoadId]
+        () => sortedSegments.find((s) => s.road_id === selectedRoadId) || sortedSegments[0],
+        [selectedRoadId, sortedSegments]
     );
 
     const selectedLive = useMemo(
@@ -40,10 +61,10 @@ export default function NavigatorDashboard() {
 
     useEffect(() => {
         const rid = searchParams.get("road_id");
-        if (!rid) return;
-        const exists = STATIC_SEGMENTS.find((s) => s.road_id === rid);
+        if (!rid || !segments.length) return;
+        const exists = segments.find((s) => s.road_id === rid);
         if (exists) setSelectedRoadId(rid);
-    }, [searchParams]);
+    }, [searchParams, segments]);
 
     useEffect(() => {
         if (!selectedRoadId) return;
@@ -122,10 +143,11 @@ export default function NavigatorDashboard() {
                         className="w-full rounded-md border border-gray-700 bg-gray-950 px-3 py-2 text-sm"
                         value={selectedRoadId}
                         onChange={(e) => setSelectedRoadId(e.target.value)}
+                        disabled={!sortedSegments.length}
                     >
-                        {STATIC_SEGMENTS.map((seg) => (
+                        {sortedSegments.map((seg) => (
                             <option key={seg.road_id} value={seg.road_id}>
-                                {seg.segment_name} ({seg.road_name})
+                                {seg.segment_name || seg.road_name || seg.road_id} ({seg.road_name})
                             </option>
                         ))}
                     </select>

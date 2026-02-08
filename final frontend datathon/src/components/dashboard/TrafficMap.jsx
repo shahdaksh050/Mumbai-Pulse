@@ -6,6 +6,96 @@ import { Map, Zap, Layers, Navigation, Search, AlertCircle } from "lucide-react"
 import { cn } from "@/lib/utils";
 import { fetchSegments, searchPredictions } from "@/lib/api";
 
+// Static catalog of all unique road segments (fallback/union with API data)
+const ALL_SEGMENTS = [
+    { "road_id": "AIR_1", "road_name": "Airport Approach Road", "segment_name": "Terminal 2 (Sahar)", "lat": 19.0896, "lon": 72.8656, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "AIR_2", "road_name": "Airport Approach Road", "segment_name": "Terminal 1 (Santacruz)", "lat": 19.0945, "lon": 72.853, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "AKR_1", "road_name": "Andheri-Kurla Road", "segment_name": "Saki Naka", "lat": 19.089, "lon": 72.8884, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "AKR_2", "road_name": "Andheri-Kurla Road", "segment_name": "Marol", "lat": 19.1083, "lon": 72.8856, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "AKR_3", "road_name": "Andheri-Kurla Road", "segment_name": "Chakala", "lat": 19.1105, "lon": 72.8628, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "AKR_4", "road_name": "Andheri-Kurla Road", "segment_name": "Kurla West", "lat": 19.073, "lon": 72.8795, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "WOR_1", "road_name": "Annie Besant Road", "segment_name": "Worli Naka", "lat": 19.0097, "lon": 72.8175, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "WOR_2", "road_name": "Annie Besant Road", "segment_name": "Prabhadevi", "lat": 19.0144, "lon": 72.8258, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "BKC_3", "road_name": "BKC Connector", "segment_name": "BKC Near US Consulate", "lat": 19.066, "lon": 72.8635, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "BKC_2", "road_name": "BKC Connector", "segment_name": "BKC Central", "lat": 19.0672, "lon": 72.8664, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "BKC_1", "road_name": "BKC Connector", "segment_name": "Bandra East Entry", "lat": 19.0607, "lon": 72.8691, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "BKC_4", "road_name": "BKC Connector", "segment_name": "BKC - MMRDA Grounds", "lat": 19.0688, "lon": 72.862, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "BWSL_2", "road_name": "Bandra-Worli Sea Link Approach", "segment_name": "Worli End", "lat": 19.0167, "lon": 72.8162, "road_class": "highway", "readings": 17544 },
+    { "road_id": "BWSL_1", "road_name": "Bandra-Worli Sea Link Approach", "segment_name": "Bandra Reclamation", "lat": 19.0353, "lon": 72.8166, "road_class": "highway", "readings": 17544 },
+    { "road_id": "CAR_1", "road_name": "Carter Road", "segment_name": "Bandra West", "lat": 19.06, "lon": 72.8192, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "CHE_1", "road_name": "Chembur Junction Approaches", "segment_name": "Amar Mahal Junction", "lat": 19.0642, "lon": 72.8936, "road_class": "local", "readings": 17544 },
+    { "road_id": "DHA_1", "road_name": "Dharavi Main Road", "segment_name": "Dharavi Junction", "lat": 19.0431, "lon": 72.853, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "EMR_1", "road_name": "Dr. E Moses Road", "segment_name": "Mahalaxmi", "lat": 18.9838, "lon": 72.8039, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "EEH_4", "road_name": "Eastern Express Highway", "segment_name": "Bhandup", "lat": 19.1438, "lon": 72.943, "road_class": "highway", "readings": 17544 },
+    { "road_id": "EEH_5", "road_name": "Eastern Express Highway", "segment_name": "Vikhroli", "lat": 19.1119, "lon": 72.9341, "road_class": "highway", "readings": 17544 },
+    { "road_id": "EEH_6", "road_name": "Eastern Express Highway", "segment_name": "Kurla", "lat": 19.0734, "lon": 72.8847, "road_class": "highway", "readings": 17544 },
+    { "road_id": "EEH_7", "road_name": "Eastern Express Highway", "segment_name": "Chembur Naka", "lat": 19.0564, "lon": 72.889, "road_class": "highway", "readings": 17544 },
+    { "road_id": "EEH_2", "road_name": "Eastern Express Highway", "segment_name": "Ghatkopar", "lat": 19.0867, "lon": 72.9073, "road_class": "highway", "readings": 17544 },
+    { "road_id": "EEH_1", "road_name": "Eastern Express Highway", "segment_name": "Mulund", "lat": 19.1736, "lon": 72.957, "road_class": "highway", "readings": 17544 },
+    { "road_id": "EEH_3", "road_name": "Eastern Express Highway", "segment_name": "Sion", "lat": 19.0455, "lon": 72.8632, "road_class": "highway", "readings": 17544 },
+    { "road_id": "GMLR_1", "road_name": "Ghatkopar-Mankhurd Link Road", "segment_name": "Ghatkopar Link Start", "lat": 19.0891, "lon": 72.9152, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "GMLR_2", "road_name": "Ghatkopar-Mankhurd Link Road", "segment_name": "Mankhurd End", "lat": 19.0468, "lon": 72.9396, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "JVLR_1", "road_name": "JVLR", "segment_name": "WEH Junction", "lat": 19.1316, "lon": 72.8464, "road_class": "local", "readings": 17544 },
+    { "road_id": "JVLR_3", "road_name": "JVLR", "segment_name": "IIT Powai", "lat": 19.1325, "lon": 72.915, "road_class": "local", "readings": 17544 },
+    { "road_id": "JVLR_4", "road_name": "JVLR", "segment_name": "Kanjurmarg Link", "lat": 19.1246, "lon": 72.9287, "road_class": "local", "readings": 17544 },
+    { "road_id": "JVLR_2", "road_name": "JVLR", "segment_name": "Powai", "lat": 19.1194, "lon": 72.9055, "road_class": "local", "readings": 17544 },
+    { "road_id": "JTR_1", "road_name": "Juhu Tara Road", "segment_name": "Juhu", "lat": 19.0979, "lon": 72.8261, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "LBS_1", "road_name": "LBS Marg", "segment_name": "Mulund West", "lat": 19.1725, "lon": 72.9457, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "LBS_2", "road_name": "LBS Marg", "segment_name": "Vikhroli West", "lat": 19.1075, "lon": 72.9289, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "LBS_3", "road_name": "LBS Marg", "segment_name": "Bhandup West", "lat": 19.1432, "lon": 72.9353, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "LBS_4", "road_name": "LBS Marg", "segment_name": "Kanjurmarg", "lat": 19.1307, "lon": 72.9343, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "LBS_5", "road_name": "LBS Marg", "segment_name": "Ghatkopar West", "lat": 19.086, "lon": 72.909, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "LNK_3", "road_name": "Linking Road", "segment_name": "Santacruz", "lat": 19.0808, "lon": 72.8324, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "LNK_1", "road_name": "Linking Road", "segment_name": "Bandra", "lat": 19.0604, "lon": 72.8352, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "LNK_2", "road_name": "Linking Road", "segment_name": "Khar", "lat": 19.0718, "lon": 72.833, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "MAH_1", "road_name": "Mahim Junction Approaches", "segment_name": "Mahim Causeway", "lat": 19.0402, "lon": 72.84, "road_class": "local", "readings": 17544 },
+    { "road_id": "MAR_1", "road_name": "Marine Drive", "segment_name": "Churchgate", "lat": 18.9335, "lon": 72.8257, "road_class": "local", "readings": 17544 },
+    { "road_id": "MAR_2", "road_name": "Marine Drive", "segment_name": "Nariman Point", "lat": 18.9256, "lon": 72.8232, "road_class": "local", "readings": 17544 },
+    { "road_id": "NMJ_1", "road_name": "N. M. Joshi Marg", "segment_name": "Byculla", "lat": 18.9769, "lon": 72.8326, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "PDR_1", "road_name": "P. D'Mello Road", "segment_name": "CST / Masjid Bunder", "lat": 18.9508, "lon": 72.838, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "PED_1", "road_name": "Peddar Road", "segment_name": "Kemps Corner", "lat": 18.9647, "lon": 72.8075, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "SVR_5", "road_name": "S V Road", "segment_name": "Andheri", "lat": 19.119, "lon": 72.846, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "SVR_8", "road_name": "S V Road", "segment_name": "Borivali", "lat": 19.23, "lon": 72.8565, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "SVR_7", "road_name": "S V Road", "segment_name": "Malad", "lat": 19.1861, "lon": 72.8488, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "SVR_6", "road_name": "S V Road", "segment_name": "Goregaon", "lat": 19.1663, "lon": 72.8499, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "SVR_4", "road_name": "S V Road", "segment_name": "Vile Parle", "lat": 19.0996, "lon": 72.8426, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "SVR_3", "road_name": "S V Road", "segment_name": "Santacruz", "lat": 19.0798, "lon": 72.8332, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "SVR_1", "road_name": "S V Road", "segment_name": "Bandra", "lat": 19.0548, "lon": 72.8407, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "SVR_2", "road_name": "S V Road", "segment_name": "Khar", "lat": 19.0702, "lon": 72.8337, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "SCLR_3", "road_name": "SCLR", "segment_name": "CST Road / Kurla", "lat": 19.0775, "lon": 72.8818, "road_class": "local", "readings": 17544 },
+    { "road_id": "SCLR_2", "road_name": "SCLR", "segment_name": "Chembur Exit", "lat": 19.0616, "lon": 72.8971, "road_class": "local", "readings": 17544 },
+    { "road_id": "SCLR_1", "road_name": "SCLR", "segment_name": "Santacruz East", "lat": 19.0794, "lon": 72.8563, "road_class": "local", "readings": 17544 },
+    { "road_id": "SAH_1", "road_name": "Sahar Elevated Road", "segment_name": "Sahar Elevated Entry", "lat": 19.1072, "lon": 72.8622, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "SAH_2", "road_name": "Sahar Elevated Road", "segment_name": "Andheri East Exit", "lat": 19.1157, "lon": 72.8592, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "SBM_2", "road_name": "Senapati Bapat Marg", "segment_name": "Lower Parel", "lat": 18.9982, "lon": 72.8291, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "SBM_1", "road_name": "Senapati Bapat Marg", "segment_name": "Dadar West", "lat": 19.0209, "lon": 72.842, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "SIO_1", "road_name": "Sion Junction Approaches", "segment_name": "Sion Circle", "lat": 19.0408, "lon": 72.8629, "road_class": "local", "readings": 17544 },
+    { "road_id": "SPH_2", "road_name": "Sion-Panvel Highway", "segment_name": "Mankhurd", "lat": 19.0509, "lon": 72.9296, "road_class": "highway", "readings": 17544 },
+    { "road_id": "SPH_4", "road_name": "Sion-Panvel Highway", "segment_name": "Govandi", "lat": 19.0475, "lon": 72.916, "road_class": "highway", "readings": 17544 },
+    { "road_id": "SPH_1", "road_name": "Sion-Panvel Highway", "segment_name": "Chembur", "lat": 19.0623, "lon": 72.8974, "road_class": "highway", "readings": 17544 },
+    { "road_id": "TAR_1", "road_name": "Tardeo Road", "segment_name": "Tardeo", "lat": 18.9729, "lon": 72.809, "road_class": "arterial", "readings": 17544 },
+    { "road_id": "WEH_10", "road_name": "Western Express Highway", "segment_name": "Santacruz East", "lat": 19.0816, "lon": 72.8487, "road_class": "highway", "readings": 17544 },
+    { "road_id": "WEH_2", "road_name": "Western Express Highway", "segment_name": "Goregaon East", "lat": 19.1633, "lon": 72.8497, "road_class": "highway", "readings": 17544 },
+    { "road_id": "WEH_3", "road_name": "Western Express Highway", "segment_name": "Andheri East", "lat": 19.1197, "lon": 72.8468, "road_class": "highway", "readings": 17544 },
+    { "road_id": "WEH_4", "road_name": "Western Express Highway", "segment_name": "Bandra East", "lat": 19.0556, "lon": 72.8426, "road_class": "highway", "readings": 17544 },
+    { "road_id": "WEH_5", "road_name": "Western Express Highway", "segment_name": "Borivali East", "lat": 19.228, "lon": 72.8546, "road_class": "highway", "readings": 17544 },
+    { "road_id": "WEH_6", "road_name": "Western Express Highway", "segment_name": "Kandivali East", "lat": 19.2045, "lon": 72.8571, "road_class": "highway", "readings": 17544 },
+    { "road_id": "WEH_7", "road_name": "Western Express Highway", "segment_name": "Malad East", "lat": 19.1871, "lon": 72.8486, "road_class": "highway", "readings": 17544 },
+    { "road_id": "WEH_8", "road_name": "Western Express Highway", "segment_name": "Jogeshwari East", "lat": 19.1351, "lon": 72.854, "road_class": "highway", "readings": 17544 },
+    { "road_id": "WEH_9", "road_name": "Western Express Highway", "segment_name": "Vile Parle East", "lat": 19.0991, "lon": 72.8527, "road_class": "highway", "readings": 17544 },
+    { "road_id": "WEH_1", "road_name": "Western Express Highway", "segment_name": "Dahisar East", "lat": 19.2514, "lon": 72.8653, "road_class": "highway", "readings": 17544 }
+];
+
+function mergeSegments(apiSegments) {
+    const map = new Map();
+    ALL_SEGMENTS.forEach((s) => map.set(s.road_id, s));
+    (apiSegments || []).forEach((s) => {
+        const base = map.get(s.road_id) || {};
+        map.set(s.road_id, { ...base, ...s });
+    });
+    return Array.from(map.values());
+}
+
 function severityMeta(congestionPct) {
     if (congestionPct >= 80) return { color: "text-red-500", glow: "bg-red-500/20", iconColor: "border-red-500", label: "Critical" };
     if (congestionPct >= 60) return { color: "text-orange-500", glow: "bg-orange-500/20", iconColor: "border-orange-500", label: "Heavy" };
@@ -44,9 +134,10 @@ export function TrafficMap() {
                     searchPredictions({ min_congestion: 50, limit: 200 })
                 ]);
                 if (!mounted) return;
-                setSegments(segData || []);
+                const mergedSegments = mergeSegments(segData);
+                setSegments(mergedSegments);
                 const merged = (hotspotData || []).map((h) => {
-                    const match = segData?.find((s) => s.road_id === h.road_id);
+                    const match = mergedSegments.find((s) => s.road_id === h.road_id);
                     return {
                         ...h,
                         lat: match?.lat,

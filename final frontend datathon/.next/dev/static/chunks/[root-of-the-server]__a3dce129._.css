@@ -178,7 +178,6 @@
     --color-emerald-400: #00d294;
     --color-emerald-500: #00bb7f;
     --color-cyan-50: #ecfeff;
-    --color-cyan-100: #cefafe;
     --color-cyan-200: #a2f4fd;
     --color-cyan-400: #00d2ef;
     --color-cyan-500: #00b7d7;
@@ -266,7 +265,6 @@
       --color-emerald-400: lab(75.0771% -60.7313 19.4146);
       --color-emerald-500: lab(66.9756% -58.27 19.5419);
       --color-cyan-50: lab(98.3303% -5.97429 -2.62109);
-      --color-cyan-100: lab(95.3146% -13.8285 -6.84733);
       --color-cyan-200: lab(91.0821% -24.0435 -12.8306);
       --color-cyan-400: lab(76.6045% -40.9406 -29.6231);
       --color-cyan-500: lab(67.805% -35.3952 -30.2018);
@@ -1455,16 +1453,6 @@
     }
   }
 
-  .border-cyan-500\/30 {
-    border-color: #00b7d74d;
-  }
-
-  @supports (color: color-mix(in lab, red, red)) {
-    .border-cyan-500\/30 {
-      border-color: color-mix(in oklab, var(--color-cyan-500) 30%, transparent);
-    }
-  }
-
   .border-emerald-400\/30 {
     border-color: #00d2944d;
   }
@@ -2485,10 +2473,6 @@
 
   .text-cyan-50 {
     color: var(--color-cyan-50);
-  }
-
-  .text-cyan-100 {
-    color: var(--color-cyan-100);
   }
 
   .text-cyan-200 {

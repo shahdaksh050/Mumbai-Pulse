@@ -29,7 +29,6 @@ export default function MapPage() {
         return m;
     }, [segments]);
 
-    // Keep only the most recent reading per road_id (current snapshot)
     const latestReadings = useMemo(() => {
         const latest = new Map();
         readings.forEach((r) => {
@@ -40,41 +39,55 @@ export default function MapPage() {
                 latest.set(r.road_id, r);
             }
         });
-        return Array.from(latest.values());
+        return latest;
     }, [readings]);
+
+    // Combine all segments with their latest reading (or placeholder) so we show every segment from DB
+    const combinedSegments = useMemo(() => {
+        return segments.map((seg) => {
+            const reading = latestReadings.get(seg.road_id);
+            return {
+                ...seg,
+                ...reading,
+                congestion_pct: reading?.congestion_pct ?? null,
+                timestamp: reading?.timestamp ?? null,
+                source: reading ? "live" : "segment",
+            };
+        }).sort((a, b) => (b.congestion_pct ?? 0) - (a.congestion_pct ?? 0));
+    }, [segments, latestReadings]);
 
     const filtered = useMemo(() => {
         const q = query.toLowerCase();
-        return latestReadings
-            .filter((r) => {
-                const seg = indexedSegments.get(r.road_id);
-                const hay = `${r.road_id} ${seg?.road_name || ""} ${seg?.segment_name || ""}`.toLowerCase();
-                return !q || hay.includes(q);
-            })
-            .sort((a, b) => (b.congestion_pct || 0) - (a.congestion_pct || 0));
-    }, [latestReadings, query, indexedSegments]);
+        return combinedSegments.filter((item) => {
+            const hay = `${item.road_id} ${item.road_name || ""} ${item.segment_name || ""}`.toLowerCase();
+            return !q || hay.includes(q);
+        });
+    }, [combinedSegments, query]);
 
-    const colorFor = useCallback((pct) => pct >= 70 ? "#ef4444" : pct >= 40 ? "#f59e0b" : "#22c55e", []);
+    const colorFor = useCallback((pct) => {
+        if (pct == null || Number.isNaN(pct)) return "#94a3b8"; // neutral gray when no live reading
+        return pct >= 70 ? "#ef4444" : pct >= 40 ? "#f59e0b" : "#22c55e";
+    }, []);
 
     const markers = useMemo(() => {
         return filtered
-            .map((r, idx) => {
-                const seg = indexedSegments.get(r.road_id);
+            .map((item, idx) => {
+                const seg = indexedSegments.get(item.road_id) || item;
                 if (seg?.lat == null || seg?.lon == null) return null;
-                const pct = r.congestion_pct || 0;
+                const pct = item.congestion_pct;
                 const color = colorFor(pct);
                 return {
-                    id: `${r.road_id}-${idx}`,
-                    linkedId: r.road_id,
+                    id: `${item.road_id}-${idx}`,
+                    linkedId: item.road_id,
                     lat: seg.lat,
                     lng: seg.lon,
                     color,
                     popupContent: (
                         <div className="p-2 space-y-1">
                             <p className="font-bold">{seg.segment_name || seg.road_name}</p>
-                            <p className="text-sm text-muted-foreground">{r.road_id}</p>
-                            <p className="text-sm">Congestion: {pct.toFixed?.(1) ?? pct}% {r.congestion_band ? `(${r.congestion_band})` : ""}</p>
-                            <Link href={`/navigator?road_id=${r.road_id}`} className="text-primary text-sm font-semibold">View forecast →</Link>
+                            <p className="text-sm text-muted-foreground">{item.road_id}</p>
+                            <p className="text-sm">Congestion: {pct != null ? (pct.toFixed?.(1) ?? pct) + "%" : "No live reading"} {item.congestion_band ? `(${item.congestion_band})` : ""}</p>
+                            <Link href={`/navigator?road_id=${item.road_id}`} className="text-primary text-sm font-semibold">View forecast →</Link>
                         </div>
                     ),
                 };
@@ -139,7 +152,7 @@ export default function MapPage() {
                                     </select>
                                 </div>
                                 {error && <p className="text-sm text-red-500">{error}</p>}
-                                <p className="text-xs text-muted-foreground">Showing {filtered.length} of {readings.length} live readings</p>
+                                <p className="text-xs text-muted-foreground">Showing {filtered.length} of {combinedSegments.length} segments</p>
                             </div>
 
                             <div className="flex-1 overflow-auto rounded-xl border border-border bg-card/40 backdrop-blur-sm p-3 space-y-3">
@@ -147,8 +160,8 @@ export default function MapPage() {
                                 {loading && <p className="text-sm text-muted-foreground">Loading…</p>}
                                 {!loading && filtered.length === 0 && <p className="text-sm text-muted-foreground">No locations match your search.</p>}
                                 {filtered.map((r, idx) => {
-                                    const seg = indexedSegments.get(r.road_id) || {};
-                                    const pct = r.congestion_pct || 0;
+                                    const seg = indexedSegments.get(r.road_id) || r;
+                                    const pct = r.congestion_pct;
                                     const color = colorFor(pct);
                                     const isSelected = selectedId === r.road_id;
                                     return (
@@ -172,11 +185,11 @@ export default function MapPage() {
                                                     className="text-[11px] px-2 py-1 rounded-full font-semibold"
                                                     style={{ backgroundColor: `${color}22`, color: color }}
                                                 >
-                                                    {pct.toFixed?.(1) ?? pct}%
+                                                    {pct != null ? `${pct.toFixed?.(1) ?? pct}%` : "—"}
                                                 </span>
                                             </div>
                                             <div className="flex items-center justify-between mt-2 text-[11px] text-muted-foreground">
-                                                <span>{formatTime(r.timestamp)}</span>
+                                                <span>{r.timestamp ? formatTime(r.timestamp) : "No live reading"}</span>
                                                 <Link href={`/navigator?road_id=${r.road_id}`} className="text-primary font-semibold">View forecast</Link>
                                             </div>
                                         </div>
